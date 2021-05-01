@@ -14,15 +14,36 @@ app.get("/",(req,res)=>{
   });
 
 app.get("/url/emotion", (req,res) => {
+    const urlEmotionParams = {
+        'url': req.query.url,
+
+    }
 
     return res.send({"happy":"90","sad":"10"});
 });
 
 app.get("/url/sentiment", (req,res) => {
+    console.log(req.query.url);
     return res.send("url sentiment for "+req.query.url);
 });
 
 app.get("/text/emotion", (req,res) => {
+    const textEmotionParams = {
+        "text": req.query.text,
+        "features": {
+            "emotion": true
+        },
+    }
+    var nluInstance = getNLUInstance();
+    nluInstance.analyze(textEmotionParams).then(analysisResults => {
+        console.log(JSON.stringify(analysisResults, null, 2));
+        })
+        .catch(err => {
+            console.log('error:', err);
+            });
+    
+
+    
     return res.send({"happy":"10","sad":"90"});
 });
 
@@ -39,14 +60,14 @@ function getNLUInstance() {
     let api_url = process.env.API_URL;
 
     const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-understanding/v1');
-    const { IamAuthenticator } = require('imb-watson/auth');
+    //const { IamAuthenticator } = require('imb-watson/auth');
 
     const naturalLanguageUnderstanding = new NaturalLanguageUnderstandingV1({
         version: '2020-08-01',
-        authenticator: new IamAuthenticator({
-            apikey: api_key,
-        }),
-        serviceUrl: api_url,
+        //authenticator: new IamAuthenticator({
+          apikey: api_key,
+        //}),
+        serviceUrl: api_url
     });
     return naturalLanguageUnderstanding;
 }
